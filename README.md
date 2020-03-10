@@ -21,7 +21,9 @@ _Don't take this project too seriously, it was done only to have fun._
 **DISCLAIMER**: The _PHONE_ mode only works on this app: [Nonogram from Easybrain](https://play.google.com/store/apps/details?id=com.easybrain.nonogram).
 
 Usage syntax:
+
 ```$ python src\nonogram.py [file|PHONE]```
+
 If we don't have any arguments the solver will ask the user for the size of the Nongoram and its rules. If we have as an argument a file the solver will read the input from there that must formatted using this rules:
 1. The first line will contain _N_ the size of the Nonogram
 2. The next _N_ lines will contain the rules of the rows
