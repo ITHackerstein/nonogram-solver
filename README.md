@@ -1,7 +1,3 @@
-## Usage
-
-To use this solver it's required to install the required Python modules with
-
 # Nonogram Solver
 
 ## Description
@@ -27,7 +23,7 @@ Usage syntax:
 If we don't have any arguments the solver will ask the user for the size of the Nongoram and its rules. If we have as an argument a file the solver will read the input from there that must formatted using this rules:
 1. The first line will contain _N_ the size of the Nonogram
 2. The next _N_ lines will contain the rules of the rows
-3. The next_N_ lines will contains the rules of the columns
+3. The next _N_ lines will contains the rules of the columns
 If the second argument is ```PHONE``` then the solver will ask the user the size and the rules of the Nonogram, and it will also ask to touch the top left quarter of the grid and when it solves the Nonogram than the solution will be sent to the phone.
 
 To test the solver there are some test files in the _tests_ folder.

@@ -14,12 +14,30 @@ os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 
 import pygame
 
+# Global variables
+
+nono_size = 0
+pgrid_data = {}
+
 # Function to get the position where to touch on the phone
 
 def get_phone_coord(i, j):
-	cell_size = 840 // nono_size
-	x = actual_tl_cell[0] + (cell_size + 2) * i + int((i + 1) % 5 == 0) * 5
-	y = actual_tl_cell[1] + (cell_size + 2) * j + int((j + 1) % 5 == 0) * 5
+	tl_cell = pgrid_data["tl_cell"]
+	cell_size = pgrid_data["cell_size"]
+	sbs = pgrid_data["small_border_size"]
+	bbs = pgrid_data["big_border_size"]
+	x = tl_cell[0] + cell_size * i
+	y = tl_cell[1] + cell_size * j
+	for idx in range(i + 1):
+		if idx % 5 == 0:
+			x += bbs
+		else:
+			x += sbs
+	for idx in range(j + 1):
+		if idx % 5 == 0:
+			y += bbs
+		else:
+			y += sbs
 	return x, y
 
 # WELCOME Message
@@ -27,11 +45,6 @@ def get_phone_coord(i, j):
 print("This is a Nonogram puzzle solver!")
 print("This can theoretically solve any Nonogram puzzle, but I STRONGLY suggest to use a Nonogram size less than around 27, or even less. Trying bigger ones can potentially freeze your PC, so don't try that.")
 print("This solver can only solve single solutions Nonograms.\n")
-
-# Global variables
-
-nono_size = 0
-actual_tl_cell = None
 
 if len(sys.argv) > 1:
 	if sys.argv[1] != "PHONE":
@@ -41,7 +54,7 @@ if len(sys.argv) > 1:
 			print("Error while parsing file!")
 			sys.exit()
 	else:
-		nono_size, actual_tl_cell, row_rules, col_rules = phone_input()
+		nono_size, pgrid_data, row_rules, col_rules = phone_input()
 else:
 	nono_size, row_rules, col_rules = get_input()
 
@@ -90,7 +103,7 @@ if sys.argv[1] == "PHONE":
 	print("Creating input script for phone...")
 	input_file = io.open("input.sh", "a", newline='\n') # Assures the line-ending is Unix
 
-	cell_size = 840 // nono_size
+	cell_size = pgrid_data["cell_size"]
 
 	for j in range(nono_size):
 		start = None
@@ -141,12 +154,12 @@ if sys.argv[1] == "PHONE":
 	adb.run_command("rm /sdcard/input.sh")
 
 	while True:
-		answer = input("Do you want to kill the ADB server? [y/n]").lower()
+		answer = input("Do you want to kill the ADB server? [y/n] ").lower()
 		if answer != 'y' and answer != 'n':
 			print("Not valid!")
 			continue
 
 		if answer == 'y':
-			kill_server()
+			adb.kill_server()
 			print("Server killed!")
 		break
