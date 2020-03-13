@@ -28,12 +28,12 @@ def get_phone_coord(i, j):
 	bbs = pgrid_data["big_border_size"]
 	x = tl_cell[0] + cell_size * i
 	y = tl_cell[1] + cell_size * j
-	for idx in range(i + 1):
+	for idx in range(1, i + 1):
 		if idx % 5 == 0:
 			x += bbs
 		else:
 			x += sbs
-	for idx in range(j + 1):
+	for idx in range(1, j + 1):
 		if idx % 5 == 0:
 			y += bbs
 		else:
