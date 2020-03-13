@@ -3,7 +3,13 @@ import psutil
 import time
 import re
 import os
+import platform
 from PIL import Image
+
+if platform.system() == "Windows":
+	ADB_RUNTIME = f"{os.environ['SYSTEMDRIVE']}\\adb\\adb.exe"
+elif platform.system() == "Linux":
+	ADB_RUNTIME = "adb"
 
 def parse_evt(evt):
 	return re.sub(r' {2,}', ' ', evt.replace('[', '').replace(']', '').strip()).split(" ")
@@ -43,14 +49,14 @@ class ADB:
 			if proc.name() == 'adb' or proc.name() == 'adb.exe':
 				break
 		else:
-			subprocess.run(["adb", "start-server"])
+			subprocess.run([ADB_RUNTIME, "start-server"])
 		self.set_touch_device()
 
 	def kill_server(self):
-		subprocess.run(["adb", "kill-server"])
+		subprocess.run([ADB_RUNTIME, "kill-server"])
 
 	def device_connected(self):
-		p = subprocess.Popen(["adb", "devices"], stdout=subprocess.PIPE)
+		p = subprocess.Popen([ADB_RUNTIME, "devices"], stdout=subprocess.PIPE)
 		devices = p.communicate()[0].decode("ascii").strip().split("\n")[1:]
 
 		if len(devices) != 1:
@@ -60,7 +66,7 @@ class ADB:
 
 	def set_touch_device(self):
 		assert self.device_connected(), "Make sure there is ONLY ONE device connected!"
-		p = subprocess.Popen(["adb", "shell", "getevent", "-lp"], stdout=subprocess.PIPE)
+		p = subprocess.Popen([ADB_RUNTIME, "shell", "getevent", "-lp"], stdout=subprocess.PIPE)
 		lines = p.communicate()[0].decode("ascii").strip().split("\n")
 		device_name = ""
 		found = False
@@ -80,7 +86,7 @@ class ADB:
 
 	def get_touch_inputs(self, time_range=5):
 		assert self.device_connected(), "Make sure there is ONLY ONE device connected!"
-		p = subprocess.Popen(["adb", "shell", "getevent", "-lt", self.touch_device], stdout=subprocess.PIPE)
+		p = subprocess.Popen([ADB_RUNTIME, "shell", "getevent", "-lt", self.touch_device], stdout=subprocess.PIPE)
 		time.sleep(time_range)
 		p.terminate()
 
@@ -110,17 +116,17 @@ class ADB:
 	def get_screen(self):
 		assert self.device_connected(), "Make sure there is ONLY ONE device connected!"
 		DEV_NULL = open(os.devnull, "w")
-		subprocess.run(["adb", "shell", "screencap", "/sdcard/screen.png"], stdout=DEV_NULL, stderr=subprocess.STDOUT)
-		subprocess.run(["adb", "pull", "/sdcard/screen.png"], stdout=DEV_NULL, stderr=subprocess.STDOUT)
-		subprocess.run(["adb", "shell", "rm", "/sdcard/screen.png"], stdout=DEV_NULL, stderr=subprocess.STDOUT)
+		subprocess.run([ADB_RUNTIME, "shell", "screencap", "/sdcard/screen.png"], stdout=DEV_NULL, stderr=subprocess.STDOUT)
+		subprocess.run([ADB_RUNTIME, "pull", "/sdcard/screen.png"], stdout=DEV_NULL, stderr=subprocess.STDOUT)
+		subprocess.run([ADB_RUNTIME, "shell", "rm", "/sdcard/screen.png"], stdout=DEV_NULL, stderr=subprocess.STDOUT)
 		ret = Image.open("screen.png")
 		DEV_NULL.close()
 		return ret
 
 	def send_file(self, src, dest):
 		assert self.device_connected(), "Make sure there is ONLY ONE device connected!"
-		subprocess.run(["adb", "push", src, dest])
+		subprocess.run([ADB_RUNTIME, "push", src, dest])
 
 	def run_command(self, cmd):
 		assert self.device_connected(), "Make sure there is ONLY ONE device connected!"
-		subprocess.run(["adb", "shell", cmd])
+		subprocess.run([ADB_RUNTIME, "shell", cmd])
